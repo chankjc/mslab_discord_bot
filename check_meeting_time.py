@@ -56,5 +56,3 @@ def get_latest_five_meeting_detail(url = "https://mslab.csie.ntu.edu.tw/wiki", p
         result[title] = detail
 
     return result
-
-print(get_latest_five_meeting_detail())

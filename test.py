@@ -1,7 +1,15 @@
-import dokuwiki
+import discord
+from discord.ext import tasks, commands
+import aiocron
+import time
 import os
 from dotenv import load_dotenv
 load_dotenv()
+
+import dokuwiki
+import check_meeting_time
+import database
+
 
 def check_webpage(url = "https://mslab.csie.ntu.edu.tw/wiki", page = "group_meeting"):
     try:
@@ -12,5 +20,3 @@ def check_webpage(url = "https://mslab.csie.ntu.edu.tw/wiki", page = "group_meet
 
     content = wiki.pages.get(page)
     print(content)
-
-print(check_webpage())
