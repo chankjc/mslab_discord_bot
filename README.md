@@ -1,5 +1,7 @@
 # mslab_discord_bot
 
+Meeting notification on MSLAB Discord server
+
 ## env
 ```bash
 mv .env.example .env
