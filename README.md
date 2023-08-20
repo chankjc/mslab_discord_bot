@@ -35,6 +35,7 @@ poetry install
 
 ## run for test
 ```bash
+pytest
 ./run.sh
 ```
 
