@@ -39,7 +39,7 @@ pytest
 ./run.sh
 ```
 
-## run as daemon (Todo, testing...)
+## run as daemon
 ```
 # create .service first
 
