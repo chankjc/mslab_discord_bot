@@ -13,6 +13,7 @@ python-dotenv = "^1.0.0"
 dokuwiki = "^1.3.3"
 discord = "^2.3.2"
 aiocron = "^1.8"
+pytest = "^7.4.0"
 
 
 [build-system]
