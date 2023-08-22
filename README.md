@@ -50,7 +50,7 @@ pytest
 # link daemon to .service
 # following command will create link from ~/.config/systemd/user/mslab_discord_bot.service -> mslab_discord_bot.service
 
-systemctl --user link [/full/path/to/your/mslab_discord_bot.service]
+systemctl --user link $PWD/mslab_discord_bot.service
 
 # start
 systemctl --user start mslab_discord_bot
