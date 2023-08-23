@@ -22,9 +22,7 @@ def CreateTable():
     con.commit()
     con.close()
 
-
-# CreateTable()
-
+#CreateTable()
 
 def check_and_set_Meeting_data(channel_id, title, content):
     assert channel_id != ""
