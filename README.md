@@ -32,6 +32,12 @@ poetry install
 - https://www.dokuwiki.org/devel:xmlrpc?fbclid=IwAR0la60ASMWJ8qhrqAqZDZZcelpKpOtN_2OkgicFQsxBU-D5MYP2I7Br7_s
 - https://www.dokuwiki.org/xmlrpc
 - https://www.dokuwiki.org/config:remoteuser
+- Prepare for applications
+    -   Meeting times notification
+        -   create the releated database
+```
+./prepare.sh
+``` 
 
 ## run for test
 ```bash
