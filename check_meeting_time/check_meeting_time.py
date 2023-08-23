@@ -66,15 +66,20 @@ def get_latest_five_meeting_detail(
         detail = ""
         detail += title + "\n"
         detail += "==================" + "\n"
+        detail_with_tag = str(detail)
 
         for element in elements:
             if element != "":
                 detail += element.strip() + "\n"
+                detail_with_tag += element.strip() + "\n"
+
                 tag = generate_tag(s=element.strip(), mapping_list=mapping_list)
                 if tag != "":
-                    detail += tag + "\n"
-                detail += "---" + "\n"
+                    detail_with_tag += tag + "\n"
 
-        result[title] = detail
+                detail += "---" + "\n"
+                detail_with_tag += "---" + "\n"
+
+        result[title] = {"detail_with_tag": detail_with_tag, "detail": detail}
 
     return result

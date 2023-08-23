@@ -1,15 +1,15 @@
 import discord
 from discord.ext import tasks, commands
 import aiocron
-import time
+import arrow
 import os
+import logging 
+logging.basicConfig(filename='./log/latest_check_for_meeting_time.txt', filemode='w')
 from dotenv import load_dotenv
-
 load_dotenv()
 
-import check_meeting_time
-import database
-
+import check_meeting_time.check_meeting_time as cmt
+import database.database as db
 
 class cronjobs:
     def __init__(self, bot: commands.Bot) -> None:
@@ -19,32 +19,30 @@ class cronjobs:
         @aiocron.crontab(f"*/{self.interval} * * * *")
         async def CheckMeetingTime():
             change = False
-            # log file
-            os.system(f'echo "" > ./log/temp.txt')
-            f = open("./log/temp.txt", "a")
-            f.write(f"Update time : {time.asctime( time.localtime(time.time()) )} \n\n")
+            
+            logging.info(f"Update time : {arrow.now()} \n\n")
             # get latest webpage
-            result = check_meeting_time.get_latest_five_meeting_detail()
+            result = cmt.get_latest_five_meeting_detail()
 
             for title, content in result.items():
-                response = database.check_and_set_Meeting_data(
-                    os.getenv("DISCORD_CHANNEL"), title, content
+                response = db.check_and_set_Meeting_data(
+                    os.getenv("DISCORD_CHANNEL"), title, content['detail']
                 )
-                f.write(f"check title : {title}")
+                logging.info(f"check title : {title}")
                 if response != "":
-                    f.write(f"\n  ===> {title} update !\n")
+                    logging.info(f"\n  ===> {title} update !\n")
 
                     if int(os.getenv("NOTIFY")):
                         channel = client.get_channel(int(os.getenv("DISCORD_CHANNEL")))
-                        await channel.send(response)
+                        await channel.send(content['detail_with_tag'])
                     change = True
                 else:
-                    f.write(f" ==> No change !\n")
+                    logging.info(f" ==> No change !\n")
 
-            f.write("update finish !!\n")
-            f.close()
+            logging.info("update finish !!\n")
+            
             if change:
-                os.system(f"cp ./log/temp.txt ./log/{time.time()}")
+                os.system(f"cp ./log/latest_check_for_meeting_time.txt ./log/{arrow.now()}_check_for_meeting_time.txt")
 
 
 class DiscordBot(commands.Bot):
