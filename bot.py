@@ -4,7 +4,7 @@ import aiocron
 import arrow
 import os
 import logging 
-logging.basicConfig(filename='./log/latest_check_for_meeting_time.txt', filemode='w')
+logging.basicConfig(filename='./log/latest_check_for_meeting_time.txt', filemode='w', level=logging.DEBUG)
 from dotenv import load_dotenv
 load_dotenv()
 
