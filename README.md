@@ -40,27 +40,29 @@ pytest
 ```
 
 ## run as daemon
-```
-# create .service first
 
+1. create .service first
+```bash
 ./help_for_create_service.sh 
-# if will help you create mslab_discord_bot.service
-
-
-# link daemon to .service
-# following command will create link from ~/.config/systemd/user/mslab_discord_bot.service -> mslab_discord_bot.service
-
+```
+2. link daemon to .service
+```bash
 systemctl --user link $PWD/mslab_discord_bot.service
-
-# start
+```
+3. start
+```bash
 systemctl --user start mslab_discord_bot
-
-# you can check daemon status
-systemctl --user status mslab_discord_bot
 ```
+- you can check daemon status
+```bash
+# status
+systemctl --user status mslab_discord_bot  
+# stop
+systemctl --user stop mslab_discord_bot  
+# restart
+systemctl --user restart mslab_discord_bot
 ```
-# if you want to delete daemon
-# following command delete ~/.config/systemd/user/mslab_discord_bot.service
+- if you want to delete daemon
+```bash
 systemctl --user disable mslab_discord_bot
-
 ```
