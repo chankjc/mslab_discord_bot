@@ -3,8 +3,16 @@ from discord.ext import tasks, commands
 import aiocron
 import arrow
 import os
-import logging 
-logging.basicConfig(filename='./log/latest_check_for_meeting_time.txt', filemode='w', level=logging.DEBUG)
+import logging
+import logging.handlers
+
+logger_meeting_time = logging.getLogger('meeting_time')
+logger_meeting_time.setLevel(logging.DEBUG)
+
+meeting_time_log_file = "./log/latest_check_for_meeting_time.txt"
+handler = logging.handlers.RotatingFileHandler(f"{meeting_time_log_file}", maxBytes=1000, backupCount=5)
+logger_meeting_time.addHandler(handler)
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -19,8 +27,8 @@ class cronjobs:
         @aiocron.crontab(f"*/{self.interval} * * * *")
         async def CheckMeetingTime():
             change = False
-            
-            logging.info(f"Update time : {arrow.now()} \n\n")
+
+            logger_meeting_time.info(f"Update time : {arrow.now()} \n\n")
             # get latest webpage
             result = cmt.get_latest_five_meeting_detail()
 
@@ -28,18 +36,18 @@ class cronjobs:
                 response = db.check_and_set_Meeting_data(
                     os.getenv("DISCORD_CHANNEL"), title, content['detail']
                 )
-                logging.info(f"check title : {title}")
+                logger_meeting_time.info(f"check title : {title}")
                 if response != "":
-                    logging.info(f"\n  ===> {title} update !\n")
+                    logger_meeting_time.info(f"\n  ===> {title} update !\n")
 
                     if int(os.getenv("NOTIFY")):
                         channel = client.get_channel(int(os.getenv("DISCORD_CHANNEL")))
                         await channel.send(content['detail_with_tag'])
                     change = True
                 else:
-                    logging.info(f" ==> No change !\n")
+                    logger_meeting_time.info(f" ==> No change !\n")
 
-            logging.info("update finish !!\n")
+            logger_meeting_time.info("update finish !!\n")
             
             if change:
                 os.system(f"cp ./log/latest_check_for_meeting_time.txt ./log/{arrow.now()}_check_for_meeting_time.txt")
