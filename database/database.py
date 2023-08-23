@@ -2,7 +2,8 @@ import hashlib
 import sqlite3
 import datetime
 
-database = "database.db"
+database_dir = "./database"
+database = f"{database_dir}/database.db"
 
 
 def hash_string(data):
