@@ -2,8 +2,8 @@ import hashlib
 import sqlite3
 import datetime
 
-database = "database.db"
-
+database_dir = "./database"
+database = f"{database_dir}/database.db"
 
 def hash_string(data):
     data = data.encode("utf-8")
@@ -21,9 +21,7 @@ def CreateTable():
     con.commit()
     con.close()
 
-
-# CreateTable()
-
+#CreateTable()
 
 def check_and_set_Meeting_data(channel_id, title, content):
     assert channel_id != ""
