@@ -5,6 +5,7 @@ import datetime
 database_dir = "./database"
 database = f"{database_dir}/database.db"
 
+
 def hash_string(data):
     data = data.encode("utf-8")
     result = hashlib.sha256(data).hexdigest()
