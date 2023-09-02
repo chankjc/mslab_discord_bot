@@ -5,7 +5,7 @@ def get_reply(message):
     # get user id or group id as user id
     channel_id = message.channel.id
     # replace mention to bot name
-    message.content = message.content.replace("@MSLAB Discord bot", "SD")
+    message.content = message.content.replace("@MSLAB Discord bot", "SD").replace("@MSLAB Meeting Time", "SD")
     # get record
     history = GetRecord(channel_id)
     now = {"role":"user", "content": message.content}

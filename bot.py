@@ -84,7 +84,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if "@MSLAB Discord bot" not in message.content:
+    if client.user.id not in [member.id for member in message.mentions]:
         if random.random() < 0.5:
             await message.channel.typing()
         return
