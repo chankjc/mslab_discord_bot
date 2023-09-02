@@ -5,6 +5,7 @@ import arrow
 import os
 import logging
 import logging.handlers
+import random
 
 logger_meeting_time = logging.getLogger('meeting_time')
 logger_meeting_time.setLevel(logging.DEBUG)
@@ -17,6 +18,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import check_meeting_time.check_meeting_time as cmt
+import processing_message.processing_message as pm
 import database.database as db
 
 class cronjobs:
@@ -76,6 +78,23 @@ async def on_ready():
     )
     await client.change_presence(status=discord.Status.online, activity=activity)
     print(f"{client.user} login in")
+
+# https://discordpy.readthedocs.io/en/stable/api.html#discord.Message
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+    if "@MSLAB Discord bot" not in message.content:
+        if random.random() < 0.5:
+            await message.channel.typing()
+        return
+
+    # sent typing status
+    await message.channel.typing()
+    
+    reply = pm.get_reply(message)
+    if reply != None:
+        await message.channel.send(reply)
 
 
 client.run(os.getenv("DISCORD_BOT_TOKEN"))

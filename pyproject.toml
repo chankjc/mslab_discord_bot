@@ -15,6 +15,7 @@ discord = "^2.3.2"
 aiocron = "^1.8"
 pytest = "^7.4.0"
 arrow = "^1.2.3"
+openai = "^0.28.0"
 
 
 [build-system]
