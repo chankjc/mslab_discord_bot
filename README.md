@@ -11,9 +11,11 @@ vim .env
 NOTIFY = 1  # notify on or off (1/0)
 INTERVAL = 10   # check interval (minutes)
 DISCORD_BOT_TOKEN = "" # discord bot
-DISCORD_CHANNEL =   # notification channel id 
+DISCORD_MEETINGTIME_NOTIFICATION_CHANNEL =   #  meeting notification channel id 
 MSLAB_ACCOUNT = ""   # your mslab wiki account
 MSLAB_PASSWORD = ""   # your mslab wiki password
+OPENAI_CHAT_MODEL = "gpt-3.5-turbo"
+OPENAI_API_KEY = ""
 ```
 
 ## install
