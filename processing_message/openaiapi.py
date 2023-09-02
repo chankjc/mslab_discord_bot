@@ -1,9 +1,10 @@
 import os
 import openai
 from dotenv import load_dotenv
+
 load_dotenv()
 
-openai.organization = "org-YYUFrsvmL5WjuUJhZJXqcM3l" # personal
+openai.organization = "org-YYUFrsvmL5WjuUJhZJXqcM3l"  # personal
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 model = os.getenv("OPENAI_CHAT_MODEL")
@@ -11,10 +12,7 @@ model = os.getenv("OPENAI_CHAT_MODEL")
 
 def ChatCompletion(messages):
     try:
-        completion = openai.ChatCompletion.create(
-            model = model,
-            messages = messages
-        )
+        completion = openai.ChatCompletion.create(model=model, messages=messages)
         return completion.choices[0].message
     except openai.error.Timeout as e:
         print(f"OpenAI API request timed out: {e}")
@@ -30,14 +28,11 @@ def ChatCompletion(messages):
         print(f"OpenAI API request was not permitted: {e}")
     except openai.error.RateLimitError as e:
         print(f"OpenAI API request exceeded rate limit: {e}")
-    
+
+
 def ImageCreation(prompt):
-    try:    
-        response = openai.Image.create(
-            prompt= prompt,
-            n=1,
-            size="1024x1024"
-        )
+    try:
+        response = openai.Image.create(prompt=prompt, n=1, size="1024x1024")
         return response.data[0].url
     except openai.error.Timeout as e:
         print(f"OpenAI API request timed out: {e}")
@@ -53,15 +48,12 @@ def ImageCreation(prompt):
         print(f"OpenAI API request was not permitted: {e}")
     except openai.error.RateLimitError as e:
         print(f"OpenAI API request exceeded rate limit: {e}")
-    
+
+
 def ImageEdit(image, mask, prompt):
     try:
         response = openai.Image.create_edit(
-            image = image,
-            mask = mask,
-            prompt = prompt,
-            n = 1,
-            size = "1024x1024"
+            image=image, mask=mask, prompt=prompt, n=1, size="1024x1024"
         )
         return response.data[0].url
     except openai.error.Timeout as e:
@@ -79,13 +71,10 @@ def ImageEdit(image, mask, prompt):
     except openai.error.RateLimitError as e:
         print(f"OpenAI API request exceeded rate limit: {e}")
 
+
 def ImageVariation(image):
     try:
-        response = openai.Image.create_variation(
-            image = image,    
-            n = 1,
-            size = "1024x1024"
-        )
+        response = openai.Image.create_variation(image=image, n=1, size="1024x1024")
         return response.data[0].url
     except openai.error.Timeout as e:
         print(f"OpenAI API request timed out: {e}")
