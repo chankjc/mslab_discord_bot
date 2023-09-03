@@ -23,6 +23,7 @@ load_dotenv()
 import check_meeting_time.check_meeting_time as cmt
 import processing_message.processing_message as pm
 import database.database as db
+import papergpt.papergpt as pg
 
 
 class cronjobs:
@@ -114,7 +115,22 @@ async def send(ctx, channel_id, *msg):
 async def send(interaction: discord.Interaction, channel_id: str, msg: str):
     channel = client.get_channel(int(channel_id))
     await channel.send(msg)
-    await interaction.response.send_message("")
+    try:
+        await interaction.response.send_message("")
+    except:
+        pass
+
+@client.tree.command(name = "papergpt", description = "MSLAB PaperGPT, [*input]")
+async def papergpt(interaction: discord.Interaction, input: str):
+    channel = client.get_channel(int(interaction.channel_id))
+    try:
+        await interaction.response.send_message("")
+    except:
+        pass
+    resp = pg.gen_papergpt_response(input)
+    await channel.send(resp)
+    
+    
     
 
 client.run(os.getenv("DISCORD_BOT_TOKEN"))
