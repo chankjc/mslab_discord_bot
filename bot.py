@@ -65,7 +65,7 @@ class DiscordBot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
         intents.message_content = True
-        super().__init__(command_prefix="!", intents=intents, help_command=None)
+        super().__init__(command_prefix="%", intents=intents, help_command=None)
 
     async def setup_hook(self):
         cron = cronjobs(self)
@@ -82,6 +82,7 @@ async def on_ready():
     activity = discord.Activity(
         type=discord.ActivityType.watching, name="MSLAB meeting time"
     )
+    await client.tree.sync()
     await client.change_presence(status=discord.Status.online, activity=activity)
     print(f"{client.user} login in")
 
@@ -89,11 +90,10 @@ async def on_ready():
 # https://discordpy.readthedocs.io/en/stable/api.html#discord.Message
 @client.event
 async def on_message(message):
+    await client.process_commands(message)
     if message.author == client.user:
         return
     if client.user.id not in [member.id for member in message.mentions]:
-        if random.random() < 0.5:
-            await message.channel.typing()
         return
 
     # sent typing status
@@ -103,5 +103,18 @@ async def on_message(message):
     if reply != None:
         await message.channel.send(reply)
 
+'''
+@client.command()
+async def send(ctx, channel_id, *msg):
+    channel = client.get_channel(int(channel_id))
+    await channel.send(" ".join(msg))
+'''
+
+@client.tree.command(name = "send", description = "send message, [channel id] [*message]")
+async def send(interaction: discord.Interaction, channel_id: str, msg: str):
+    channel = client.get_channel(int(channel_id))
+    await channel.send(msg)
+    await interaction.response.send_message("")
+    
 
 client.run(os.getenv("DISCORD_BOT_TOKEN"))
