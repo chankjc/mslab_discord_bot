@@ -24,6 +24,7 @@ import check_meeting_time.check_meeting_time as cmt
 import processing_message.processing_message as pm
 import database.database as db
 import papergpt.papergpt as pg
+import addemoji.addemoji as ae
 
 
 class cronjobs:
@@ -92,6 +93,9 @@ async def on_ready():
 @client.event
 async def on_message(message):
     await client.process_commands(message)
+    emoji = ae.emoji_response(message.content)
+    if emoji:
+        await message.add_reaction(emoji)
     if message.author == client.user:
         return
     if client.user.id not in [member.id for member in message.mentions]:
