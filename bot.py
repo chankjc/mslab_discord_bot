@@ -3,6 +3,7 @@ from discord.ext import tasks, commands
 import aiocron
 import arrow
 import os
+import time
 import logging
 import logging.handlers
 import random
@@ -108,14 +109,16 @@ async def on_message(message):
     if reply != None:
         await message.channel.send(reply)
 
-'''
+
+"""
 @client.command()
 async def send(ctx, channel_id, *msg):
     channel = client.get_channel(int(channel_id))
     await channel.send(" ".join(msg))
-'''
+"""
 
-@client.tree.command(name = "send", description = "send message, [channel id] [*message]")
+
+@client.tree.command(name="send", description="send message, [channel id] [*message]")
 async def send(interaction: discord.Interaction, channel_id: str, msg: str):
     channel = client.get_channel(int(channel_id))
     await channel.send(msg)
@@ -124,7 +127,8 @@ async def send(interaction: discord.Interaction, channel_id: str, msg: str):
     except:
         pass
 
-@client.tree.command(name = "papergpt", description = "MSLAB PaperGPT, [*input]")
+
+@client.tree.command(name="papergpt", description="MSLAB PaperGPT, [*input]")
 async def papergpt(interaction: discord.Interaction, input: str):
     channel = client.get_channel(int(interaction.channel_id))
     try:
@@ -133,8 +137,57 @@ async def papergpt(interaction: discord.Interaction, input: str):
         pass
     resp = pg.gen_papergpt_response(input)
     await channel.send(resp)
-    
-    
-    
+
+
+@client.tree.command(name="turing_gpu_status", description="MSLAB Turing Gpu status")
+async def turing_gpu_status(interaction: discord.Interaction):
+    channel = client.get_channel(int(interaction.channel_id))
+    try:
+        await interaction.response.send_message("")
+    except:
+        pass
+    cmd = "ssh Turing bash < ./workstation/nv.sh  > ./log/turing_gpu.log"
+    os.system(cmd)
+    with open("./log/turing_gpu.log", "r") as f:
+        result = f.read()
+        result = (
+            result.split(
+                "|===============================+======================+======================|"
+            )[1]
+            .replace("|", "\n")
+            .replace("|", "\n")
+            .replace("                ", "")
+            .split("\n")
+        )
+        begin = [0, 16, 32, 48, 64]
+        offset = [2, 3, 4, 7, 8, 9, 10]
+        result = [result[i+j].strip() for i in begin for j in offset]
+        await channel.send(time.asctime() + "\nTuring nvidia-smi:\nGPU\n" + "\n".join(result))
+
+
+@client.tree.command(name="leibniz_gpu_status", description="MSLAB Leibniz Gpu status")
+async def leibniz_gpu_status(interaction: discord.Interaction):
+    channel = client.get_channel(int(interaction.channel_id))
+    try:
+        await interaction.response.send_message("")
+    except:
+        pass
+    cmd = "ssh Leibniz bash < ./workstation/nv.sh  > ./log/leibniz_gpu.log"
+    os.system(cmd)
+    with open("./log/leibniz_gpu.log", "r") as f:
+        result = f.read()
+        result = (
+            result.split(
+                "|===============================+======================+======================|"
+            )[1]
+            .replace("|", "\n")
+            .replace("                ", "")
+            .split("\n")
+        )
+        begin = [0, 16, 32, 48]
+        offset = [2, 3, 4, 7, 8, 9, 10]
+        result = [result[i+j].strip() for i in begin for j in offset]
+        await channel.send( time.asctime() + "\nLeibniz nvidia-smi:\nGPU\n" + "\n".join(result))
+        
 
 client.run(os.getenv("DISCORD_BOT_TOKEN"))

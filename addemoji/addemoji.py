@@ -1,8 +1,13 @@
 import random
 import processing_message.openaiapi as openaiapi
 
+
 def emoji_response(msg):
-    keywords = "Giving the following sentence: " + msg + ", Which of the following emotions best match this sentence?\n\n"
+    keywords = (
+        "Giving the following sentence: "
+        + msg
+        + ", Which of the following emotions best match this sentence?\n\n"
+    )
     keywords += "0. hello\n"
     keywords += "1. laughter\n"
     keywords += "2. happy\n"
@@ -14,10 +19,10 @@ def emoji_response(msg):
     keywords += "8. sorry\n"
     keywords += "9. none of all\n"
     # print(keywords)
-    keywords = [{"role":"user", "content": keywords}]
-    sentiment = openaiapi.ChatCompletion(keywords).content.strip()  
+    keywords = [{"role": "user", "content": keywords}]
+    sentiment = openaiapi.ChatCompletion(keywords).content.strip()
     # print(sentiment)
-    
+
     if "none" in sentiment:
         return None
     if "hello" in sentiment:
@@ -40,43 +45,50 @@ def emoji_response(msg):
         emoji = Sorryemoji()
     else:
         emoji = None
-       
+
     return emoji
 
 
 def Helloemoji():
-    emoji = ["👐","👏","👋","🤙"]
+    emoji = ["👐", "👏", "👋", "🤙"]
     return random.choice(emoji)
+
 
 def Laughteremoji():
-    emoji = ["😄","😁","🤣","😂"]
+    emoji = ["😄", "😁", "🤣", "😂"]
     return random.choice(emoji)
+
 
 def Happyemoji():
-    emoji = ["😀","🙂","😗","😜"]
+    emoji = ["😀", "🙂", "😗", "😜"]
     return random.choice(emoji)
+
 
 def Sademoji():
-    emoji = ["😞","😕","😥","😰"]
+    emoji = ["😞", "😕", "😥", "😰"]
     return random.choice(emoji)
+
 
 def Mademoji():
-    emoji = ["😡","🤬","😠","😤"]
+    emoji = ["😡", "🤬", "😠", "😤"]
     return random.choice(emoji)
+
 
 def Thinkemoji():
-    emoji = ["🤔","😯","🤨","🧐"]
+    emoji = ["🤔", "😯", "🤨", "🧐"]
     return random.choice(emoji)
+
 
 def Loveemoji():
-    emoji = ["😍","🥰","😘","😚"]
+    emoji = ["😍", "🥰", "😘", "😚"]
     return random.choice(emoji)
+
 
 def Goodemoji():
-    emoji = ["👍","👍🏻","👍🏽","👍🏾"]
+    emoji = ["👍", "👍🏻", "👍🏽", "👍🏾"]
     return random.choice(emoji)
+
 
 def Sorryemoji():
-    emoji = ["👎","👎🏼","👎🏽","👎🏾"]
+    emoji = ["👎", "👎🏼", "👎🏽", "👎🏾"]
     return random.choice(emoji)
-
