@@ -43,14 +43,14 @@ class cronjobs:
 
             for title, content in result.items():
                 response = db.check_and_set_Meeting_data(
-                    os.getenv("DISCORD_CHANNEL"), title, content["detail"]
+                    os.getenv("DISCORD_MEETINGTIME_NOTIFICATION_CHANNEL"), title, content["detail"]
                 )
                 logger_meeting_time.info(f"check title : {title}")
                 if response != "":
                     logger_meeting_time.info(f"\n  ===> {title} update !\n")
 
                     if int(os.getenv("NOTIFY")):
-                        channel = client.get_channel(int(os.getenv("DISCORD_CHANNEL")))
+                        channel = client.get_channel(int(os.getenv("DISCORD_MEETINGTIME_NOTIFICATION_CHANNEL")))
                         await channel.send(content["detail_with_tag"])
                     change = True
                 else:
@@ -161,8 +161,12 @@ async def turing_gpu_status(interaction: discord.Interaction):
         )
         begin = [0, 16, 32, 48, 64]
         offset = [2, 3, 4, 7, 8, 9, 10]
-        result = [result[i+j].strip() for i in begin for j in offset]
-        await channel.send(time.asctime() + "\nTuring nvidia-smi:\nGPU\n" + "\n".join(result))
+        response = []
+        for i in begin:
+            response.append("```yaml")
+            response += [result[i+j].strip() for j in offset]
+            response.append("```")
+        await channel.send( "> " + time.asctime() + "\n> Turing:\n> GPU\n" + "\n".join(response))
 
 
 @client.tree.command(name="leibniz_gpu_status", description="MSLAB Leibniz Gpu status")
@@ -186,8 +190,12 @@ async def leibniz_gpu_status(interaction: discord.Interaction):
         )
         begin = [0, 16, 32, 48]
         offset = [2, 3, 4, 7, 8, 9, 10]
-        result = [result[i+j].strip() for i in begin for j in offset]
-        await channel.send( time.asctime() + "\nLeibniz nvidia-smi:\nGPU\n" + "\n".join(result))
+        response = []
+        for i in begin:
+            response.append("```yaml")
+            response += [result[i+j].strip() for j in offset]
+            response.append("```")
+        await channel.send( "> " + time.asctime() + "\n> Leibniz:\n> GPU\n" + "\n".join(response))
         
 
 client.run(os.getenv("DISCORD_BOT_TOKEN"))
