@@ -22,11 +22,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import check_meeting_time.check_meeting_time as cmt
+import check_server_status.check_server_status as css
 import processing_message.processing_message as pm
 import database.database as db
 import papergpt.papergpt as pg
 import addemoji.addemoji as ae
-
 
 class cronjobs:
     def __init__(self, bot: commands.Bot) -> None:
@@ -62,7 +62,60 @@ class cronjobs:
                 os.system(
                     f"cp ./log/latest_check_for_meeting_time.txt ./log/{arrow.now()}_check_for_meeting_time.txt"
                 )
+        
 
+        @aiocron.crontab(f"* * * * *")
+        async def CheckServerState():
+            channel = bot.get_channel(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL")))
+            
+            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Joule_cuda6")))
+            await message.edit(content=css.update_status())
+            time.sleep(6)
+
+            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Hulk")))
+            cmd = "ssh Hulk bash < ./workstation/nv.sh  > ./log/hulk_gpu.log"
+            os.system(cmd)
+            result = "error!"
+            with open("./log/hulk_gpu.log", "r") as f:
+                result = f.read()
+            await message.edit(content=result)
+            time.sleep(6)
+
+            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Turing")))
+            cmd = "ssh Turing bash < ./workstation/nv.sh  > ./log/turing_gpu.log"
+            os.system(cmd)
+            result = "error!"
+            with open("./log/turing_gpu.log", "r") as f:
+                result = f.read()
+            await message.edit(content=result)
+            time.sleep(6)
+
+            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Turing_1")))
+            cmd = "ssh Turing bash < ./workstation/nv_1.sh  > ./log/turing_1_gpu.log"
+            os.system(cmd)
+            result = "error!"
+            with open("./log/turing_1_gpu.log", "r") as f:
+                result = f.read()
+            await message.edit(content=result)
+            time.sleep(6)
+            
+            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Leibniz")))
+            cmd = "ssh Leibniz bash < ./workstation/nv.sh  > ./log/leibniz_gpu.log"
+            os.system(cmd)
+            result = "error!"
+            with open("./log/leibniz_gpu.log", "r") as f:
+                result = f.read()
+            await message.edit(content=result)
+            time.sleep(6)
+
+            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Leibniz_1")))
+            cmd = "ssh Leibniz bash < ./workstation/nv_1.sh  > ./log/leibniz_1_gpu.log"
+            os.system(cmd)
+            result = "error!"
+            with open("./log/leibniz_1_gpu.log", "r") as f:
+                result = f.read()
+            await message.edit(content=result)
+            time.sleep(6)
 
 class DiscordBot(commands.Bot):
     def __init__(self):
@@ -94,9 +147,9 @@ async def on_ready():
 @client.event
 async def on_message(message):
     await client.process_commands(message)
-    emoji = ae.emoji_response(message.content)
-    if emoji:
-        await message.add_reaction(emoji)
+    # emoji = ae.emoji_response(message.content)
+    # if emoji:
+    #    await message.add_reaction(emoji)
     if message.author == client.user:
         return
     if client.user.id not in [member.id for member in message.mentions]:
@@ -120,82 +173,52 @@ async def send(ctx, channel_id, *msg):
 
 @client.tree.command(name="send", description="send message, [channel id] [*message]")
 async def send(interaction: discord.Interaction, channel_id: str, msg: str):
-    channel = client.get_channel(int(channel_id))
-    await channel.send(msg)
     try:
-        await interaction.response.send_message("")
+        await interaction.response.send_message()
     except:
         pass
+    channel = client.get_channel(int(channel_id))
+    await channel.send(msg)
+    
 
+@client.tree.command(name="edit", description="Edit message, [channel id] [message id] [*message]")
+async def send(interaction: discord.Interaction, channel_id: str, msg_id:str, msg: str):
+    try:
+        await interaction.response.send_message()
+    except:
+        pass
+    channel = client.get_channel(int(channel_id))
+    message = await channel.fetch_message(int(msg_id))
+    await message.edit(content=msg)
+    
+
+@client.tree.command(name="react", description="Add reaction, [channel id] [message id] [emoji]")
+async def react(interaction: discord.Interaction, channel_id: str, msg_id:str, emoji: str):
+    try:
+        await interaction.response.send_message()
+    except:
+        pass
+    channel = client.get_channel(int(channel_id))
+    message = await channel.fetch_message(int(msg_id))
+    await message.add_reaction(emoji)
+    
 
 @client.tree.command(name="papergpt", description="MSLAB PaperGPT, [*input]")
 async def papergpt(interaction: discord.Interaction, input: str):
-    channel = client.get_channel(int(interaction.channel_id))
     try:
-        await interaction.response.send_message("")
+        await interaction.response.send_message()
     except:
         pass
+    channel = client.get_channel(int(interaction.channel_id))
     resp = pg.gen_papergpt_response(input)
     await channel.send(resp)
 
-
-@client.tree.command(name="turing_gpu_status", description="MSLAB Turing Gpu status")
-async def turing_gpu_status(interaction: discord.Interaction):
-    channel = client.get_channel(int(interaction.channel_id))
+@client.tree.command(name="sync", description="Sync command")
+async def sync(interaction: discord.Interaction):
     try:
-        await interaction.response.send_message("")
+        await interaction.response.send_message("Sync success!")
     except:
         pass
-    cmd = "ssh Turing bash < ./workstation/nv.sh  > ./log/turing_gpu.log"
-    os.system(cmd)
-    with open("./log/turing_gpu.log", "r") as f:
-        result = f.read()
-        result = (
-            result.split(
-                "|===============================+======================+======================|"
-            )[1]
-            .replace("|", "\n")
-            .replace("|", "\n")
-            .replace("                ", "")
-            .split("\n")
-        )
-        begin = [0, 16, 32, 48, 64]
-        offset = [2, 3, 4, 7, 8, 9, 10]
-        response = []
-        for i in begin:
-            response.append("```yaml")
-            response += [result[i+j].strip() for j in offset]
-            response.append("```")
-        await channel.send( "> " + time.asctime() + "\n> Turing:\n> GPU\n" + "\n".join(response))
-
-
-@client.tree.command(name="leibniz_gpu_status", description="MSLAB Leibniz Gpu status")
-async def leibniz_gpu_status(interaction: discord.Interaction):
-    channel = client.get_channel(int(interaction.channel_id))
-    try:
-        await interaction.response.send_message("")
-    except:
-        pass
-    cmd = "ssh Leibniz bash < ./workstation/nv.sh  > ./log/leibniz_gpu.log"
-    os.system(cmd)
-    with open("./log/leibniz_gpu.log", "r") as f:
-        result = f.read()
-        result = (
-            result.split(
-                "|===============================+======================+======================|"
-            )[1]
-            .replace("|", "\n")
-            .replace("                ", "")
-            .split("\n")
-        )
-        begin = [0, 16, 32, 48]
-        offset = [2, 3, 4, 7, 8, 9, 10]
-        response = []
-        for i in begin:
-            response.append("```yaml")
-            response += [result[i+j].strip() for j in offset]
-            response.append("```")
-        await channel.send( "> " + time.asctime() + "\n> Leibniz:\n> GPU\n" + "\n".join(response))
-        
-
+    await client.tree.sync()
+    
 client.run(os.getenv("DISCORD_BOT_TOKEN"))
