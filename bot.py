@@ -135,9 +135,6 @@ client = DiscordBot()
 
 @client.event
 async def on_ready():
-    activity = discord.Activity(
-        type=discord.ActivityType.watching, name="MSLAB meeting time"
-    )
     await client.tree.sync()
     await client.change_presence(status=discord.Status.online, activity=activity)
     print(f"{client.user} login in")
@@ -212,7 +209,29 @@ async def papergpt(interaction: discord.Interaction, input: str):
     channel = client.get_channel(int(interaction.channel_id))
     resp = pg.gen_papergpt_response(input)
     await channel.send(resp)
+    
+@client.tree.command(name = "join", description="Join voice channel")
+async def join(interaction: discord.Interaction, index: int):
+    try:
+        await interaction.response.send_message()
+    except:
+        pass
+    channel = interaction.guild.voice_channels[index]
+    if client.voice_clients:
+        await client.voice_clients[0].move_to(channel)
+    else:
+        await channel.connect()
+    
 
+@client.tree.command(name="leave", description="Leave voice channel")
+async def leave(interaction: discord.Interaction):
+    try:
+        await interaction.response.send_message()
+    except:
+        pass
+    voice_clients = client.voice_clients[0]
+    await voice_clients.disconnect()
+    
 @client.tree.command(name="sync", description="Sync command")
 async def sync(interaction: discord.Interaction):
     try:
@@ -220,5 +239,8 @@ async def sync(interaction: discord.Interaction):
     except:
         pass
     await client.tree.sync()
+
+
     
+
 client.run(os.getenv("DISCORD_BOT_TOKEN"))
