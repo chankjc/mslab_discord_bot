@@ -79,7 +79,35 @@ def get_latest_five_meeting_detail(
 
                 detail += "---" + "\n"
                 detail_with_tag += "---" + "\n"
+        
+        color_detail = ""
+        for i in range(0, len(elements), 5):
+            if i + 5 > len(elements):
+                break
+            date = elements[i + 1].strip()
+            time = elements[i + 2].strip()
+            meeting_detail = elements[i + 3].strip()
+            link = elements[i + 4].strip()
+            color_response = add_color(title, date, time, meeting_detail, link)
+            tag = generate_tag(color_response, mapping_list=mapping_list)
+            color_detail += color_response + "\n" + tag + "\n"
 
-        result[title] = {"detail_with_tag": detail_with_tag, "detail": detail}
+
+        result[title] = {"detail_with_tag": detail_with_tag, "detail": detail, "color_detail": color_detail}
 
     return result
+
+
+def add_color(tital, date, time, detail, link):
+    return f"""```ansi
+[2;31m{tital}[0m
+==================
+[2;32m[0m[2;34mDate: [0m
+     [0;2m [0m[2;33m{date}[0m
+[2;32m[2;34mTime: [0m[2;32m[0m
+      [2;35m{time}[0m
+[2;32m[0m[2;34mDetail:[0m
+      [2;36m{detail}[0m
+```
+Link: {link}
+"""

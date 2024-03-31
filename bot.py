@@ -51,7 +51,7 @@ class cronjobs:
 
                     if int(os.getenv("NOTIFY")):
                         channel = client.get_channel(int(os.getenv("DISCORD_MEETINGTIME_NOTIFICATION_CHANNEL")))
-                        await channel.send(content["detail_with_tag"])
+                        await channel.send(content["color_detail"])
                     change = True
                 else:
                     logger_meeting_time.info(f" ==> No change !\n")
@@ -63,7 +63,7 @@ class cronjobs:
                     f"cp ./log/latest_check_for_meeting_time.txt ./log/{arrow.now()}_check_for_meeting_time.txt"
                 )
         
-
+        '''
         @aiocron.crontab(f"* * * * *")
         async def CheckServerState():
             channel = bot.get_channel(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL")))
@@ -98,6 +98,15 @@ class cronjobs:
                 result = f.read()
             await message.edit(content=result)
             time.sleep(6)
+
+            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Turing_2")))
+            cmd = "ssh Turing bash < ./workstation/nv_2.sh  > ./log/turing_2_gpu.log"
+            os.system(cmd)
+            result = "error!"
+            with open("./log/turing_2_gpu.log", "r") as f:
+                result = f.read()
+            await message.edit(content=result)
+            time.sleep(6)
             
             message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Leibniz")))
             cmd = "ssh Leibniz bash < ./workstation/nv.sh  > ./log/leibniz_gpu.log"
@@ -116,6 +125,7 @@ class cronjobs:
                 result = f.read()
             await message.edit(content=result)
             time.sleep(6)
+        '''
 
 class DiscordBot(commands.Bot):
     def __init__(self):
@@ -136,7 +146,6 @@ client = DiscordBot()
 @client.event
 async def on_ready():
     await client.tree.sync()
-    await client.change_presence(status=discord.Status.online, activity=activity)
     print(f"{client.user} login in")
 
 
@@ -153,11 +162,11 @@ async def on_message(message):
         return
 
     # sent typing status
-    await message.channel.typing()
+    # await message.channel.typing()
 
-    reply = pm.get_reply(message)
-    if reply != None:
-        await message.channel.send(reply)
+    # reply = pm.get_reply(message)
+    # if reply != None:
+    #     await message.channel.send(reply)
 
 
 """
