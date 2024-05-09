@@ -41,13 +41,13 @@ poetry install
 ./prepare.sh
 ``` 
 
-## run for test
+## Run for test
 ```bash
 pytest
 ./run.sh
 ```
 
-## run as docker
+## Run as docker
 1. create dockerfile
 ```bash
 FROM python:3.11
@@ -81,7 +81,7 @@ docker-compose down --remove-orphans
 docker-compose up -d --build
 ```
 
-## run as daemon (Deprecated)
+## Run as daemon (Deprecated)
 
 1. create .service first
 ```bash
