@@ -47,7 +47,41 @@ pytest
 ./run.sh
 ```
 
-## run as daemon
+## run as docker
+1. create dockerfile
+```bash
+FROM python:3.11
+
+WORKDIR /mslab_discord_bot
+
+RUN apt -y update
+RUN apt -y upgrade
+COPY requirements.txt /tmp/requirements
+RUN pip install -r /tmp/requirements
+```
+2. create docker-compose.yaml
+```bash
+version: '3'
+
+services:
+  discord_bot:
+    container_name: mslab_discord_bot
+    build:
+      context: .
+      dockerfile: dockerfile
+    volumes:
+      - [path to folder]:/mslab_discord_bot
+    network_mode: "host"
+    restart: unless-stopped
+    command: "/bin/bash /mslab_discord_bot/run.sh"
+```
+3. run script 
+```bash
+docker-compose down --remove-orphans
+docker-compose up -d --build
+```
+
+## run as daemon (Deprecated)
 
 1. create .service first
 ```bash
