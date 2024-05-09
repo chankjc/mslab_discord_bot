@@ -1,12 +1,23 @@
-import discord
-from discord.ext import tasks, commands
-import aiocron
-import arrow
-import os
-import time
 import logging
 import logging.handlers
+import os
 import random
+import time
+
+import aiocron
+import arrow
+import discord
+from discord.ext import commands, tasks
+from dotenv import load_dotenv
+
+import addemoji.addemoji as ae
+import check_server_status.check_server_status as css
+import papergpt.papergpt as pg
+import processing_message.processing_message as pm
+from check_meeting_time import cmt
+from database import db
+
+load_dotenv()
 
 logger_meeting_time = logging.getLogger("meeting_time")
 logger_meeting_time.setLevel(logging.DEBUG)
@@ -17,16 +28,6 @@ handler = logging.handlers.RotatingFileHandler(
 )
 logger_meeting_time.addHandler(handler)
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
-import check_meeting_time.check_meeting_time as cmt
-import check_server_status.check_server_status as css
-import processing_message.processing_message as pm
-import database.database as db
-import papergpt.papergpt as pg
-import addemoji.addemoji as ae
 
 class cronjobs:
     def __init__(self, bot: commands.Bot) -> None:
@@ -39,19 +40,25 @@ class cronjobs:
 
             logger_meeting_time.info(f"Update time : {arrow.now()} \n\n")
             # get latest webpage
-            result = cmt.get_latest_five_meeting_detail()
+            results = cmt.get_latest_five_meeting_detail()
+            tag_mapping = cmt.get_tag_keyword_list()
 
-            for title, content in result.items():
+            for title, contents in results.items():
                 response = db.check_and_set_Meeting_data(
-                    os.getenv("DISCORD_MEETINGTIME_NOTIFICATION_CHANNEL"), title, content["detail"]
+                    os.getenv("DISCORD_MEETINGTIME_NOTIFICATION_CHANNEL"), title, contents
                 )
-                logger_meeting_time.info(f"check title : {title}")
-                if response != "":
-                    logger_meeting_time.info(f"\n  ===> {title} update !\n")
+                # If the response is not None, it means that the meeting is new or updated
+                # add color, add tag
+                # else, response is None
+                if response:
+                    response = cmt.add_color(response)
+                    tag = cmt.generate_tag(response, mapping_list = tag_mapping)
+                    response = tag + "\n" + response + "\n"
 
+                    logger_meeting_time.info(f"\n  ===> {title} update !\n")                    
                     if int(os.getenv("NOTIFY")):
                         channel = client.get_channel(int(os.getenv("DISCORD_MEETINGTIME_NOTIFICATION_CHANNEL")))
-                        await channel.send(content["color_detail"])
+                        await channel.send(response)
                     change = True
                 else:
                     logger_meeting_time.info(f" ==> No change !\n")
@@ -62,70 +69,7 @@ class cronjobs:
                 os.system(
                     f"cp ./log/latest_check_for_meeting_time.txt ./log/{arrow.now()}_check_for_meeting_time.txt"
                 )
-        
-        '''
-        @aiocron.crontab(f"* * * * *")
-        async def CheckServerState():
-            channel = bot.get_channel(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL")))
-            
-            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Joule_cuda6")))
-            await message.edit(content=css.update_status())
-            time.sleep(6)
 
-            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Hulk")))
-            cmd = "ssh Hulk bash < ./workstation/nv.sh  > ./log/hulk_gpu.log"
-            os.system(cmd)
-            result = "error!"
-            with open("./log/hulk_gpu.log", "r") as f:
-                result = f.read()
-            await message.edit(content=result)
-            time.sleep(6)
-
-            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Turing")))
-            cmd = "ssh Turing bash < ./workstation/nv.sh  > ./log/turing_gpu.log"
-            os.system(cmd)
-            result = "error!"
-            with open("./log/turing_gpu.log", "r") as f:
-                result = f.read()
-            await message.edit(content=result)
-            time.sleep(6)
-
-            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Turing_1")))
-            cmd = "ssh Turing bash < ./workstation/nv_1.sh  > ./log/turing_1_gpu.log"
-            os.system(cmd)
-            result = "error!"
-            with open("./log/turing_1_gpu.log", "r") as f:
-                result = f.read()
-            await message.edit(content=result)
-            time.sleep(6)
-
-            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Turing_2")))
-            cmd = "ssh Turing bash < ./workstation/nv_2.sh  > ./log/turing_2_gpu.log"
-            os.system(cmd)
-            result = "error!"
-            with open("./log/turing_2_gpu.log", "r") as f:
-                result = f.read()
-            await message.edit(content=result)
-            time.sleep(6)
-            
-            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Leibniz")))
-            cmd = "ssh Leibniz bash < ./workstation/nv.sh  > ./log/leibniz_gpu.log"
-            os.system(cmd)
-            result = "error!"
-            with open("./log/leibniz_gpu.log", "r") as f:
-                result = f.read()
-            await message.edit(content=result)
-            time.sleep(6)
-
-            message = await channel.fetch_message(int(os.getenv("DISCORD_SERVER_STATE_CHANNEL_MESSAGE_Leibniz_1")))
-            cmd = "ssh Leibniz bash < ./workstation/nv_1.sh  > ./log/leibniz_1_gpu.log"
-            os.system(cmd)
-            result = "error!"
-            with open("./log/leibniz_1_gpu.log", "r") as f:
-                result = f.read()
-            await message.edit(content=result)
-            time.sleep(6)
-        '''
 
 class DiscordBot(commands.Bot):
     def __init__(self):
@@ -250,6 +194,5 @@ async def sync(interaction: discord.Interaction):
     await client.tree.sync()
 
 
-    
 
 client.run(os.getenv("DISCORD_BOT_TOKEN"))
