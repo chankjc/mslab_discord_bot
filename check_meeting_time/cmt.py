@@ -42,12 +42,14 @@ def add_color(response):
     color_response = ""
     is_new = response.split('\n')[0] == "[New Meeting !!]"
     if is_new:
-        beg = 0
-    else:
         beg = 1
+    else:
+        beg = 0
     for line in response.split('\n'):
         if line == "":
             color_response += line + '\n'
+        elif "---" in line or "+++" in line or "@@" in line :
+            continue
         elif len(line) > 0 and line[0] == '-':  # red
             color_response += f"[2;31m{line[beg:]}[0m\n"
         elif len(line) > 0 and line[0] == '+':  # green

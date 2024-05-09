@@ -24,7 +24,8 @@ def build_compare_string(content):
     assert 'detail' in content
     assert 'link' in content
 
-    return f"""```ansi==================
+    return f"""```ansi
+==================
 Date:
         {content['date']}
 Time:
@@ -42,7 +43,8 @@ def prepare_color_string(content):
     assert 'detail' in content
     assert 'link' in content
 
-    return f"""```ansi==================
+    return f"""```ansi
+==================
 ,Date:
 !        {content['date']}
 ,Time:
@@ -55,7 +57,7 @@ def prepare_color_string(content):
 """ 
 
 def compare_diff(string1, string2):
-    diff = difflib.unified_diff(string1.splitlines(), string2.splitlines())
+    diff = difflib.unified_diff(string1.splitlines(), string2.splitlines(), n=1000)
     diff_line = ""
     for line in diff:
         diff_line += line.replace('\n', '') + '\n'
@@ -82,8 +84,9 @@ def check_and_set_Meeting_data(channel_id, title, contents):
             f'insert into Meeting_Time (channel_id, title, content) values ("{channel_id}", "{title}", "{compare_content_str}")'
         )
         result = "[New Meeting !!]\n\n"
+        result += f"{title}\n"
         for content in contents:
-            result += prepare_color_string(contents)
+            result += prepare_color_string(content)
     else:
         if query[0][0] != compare_content_str:
             old_content_str = query[0][0]
@@ -92,7 +95,8 @@ def check_and_set_Meeting_data(channel_id, title, contents):
             )
 
             compare_diff_str = compare_diff(old_content_str, compare_content_str)
-            result = "[Meeting Update !!]\n\n" + compare_diff_str
+            result = "[Meeting Update !!]\n\n"
+            result += compare_diff_str
         else:
             result = None
 
