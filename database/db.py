@@ -52,7 +52,7 @@ def prepare_color_string(content):
 ,Detail:
 +        {content['detail']}
 ,Link: 
-.        {content['link']}
++        {content['link']}
 ```
 """ 
 
