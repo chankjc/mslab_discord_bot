@@ -45,13 +45,13 @@ def prepare_color_string(content):
 
     return f"""```ansi
 ==================
-,Date:
+Date:
 !        {content['date']}
-,Time:
+Time:
 +        {content['time']}
-,Detail:
+Detail:
 +        {content['detail']}
-,Link: 
+Link: 
 +        {content['link']}
 ```
 """ 
