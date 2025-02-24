@@ -99,6 +99,7 @@ def get_latest_five_meeting_detail(
     # |Fri 4/26 |10:00~15:30| LLM_Rec(9:40), Emb_attack(10:00), Emb_Rec+Graph_min (10:20), Mem_Gen_Ana&Learn(10:40), IL (11:10),  image (11:20) group meeting (12:20), |https://meet.google.com/fpu-gijb-gem?authuser=1&hs=122&ijlm=1606109463391|
     # 
     # ....
+
     content = (
         wiki.pages.get(page)
         .replace("=====", "===")
@@ -106,6 +107,7 @@ def get_latest_five_meeting_detail(
         .replace("\n", "")
         .split("===")
     )
+
     # after processing, content is a list of string
     # ['',
     # '5/2 Meetings ',
@@ -118,13 +120,14 @@ def get_latest_five_meeting_detail(
     # '|Thur 4/11 |10:00~14:00| Fundation_Pred (9:30), ICL(10:00), Emb_Rec+Graph_min (10:30),  image (10:50),  |https://meet.google.com/fpu-gijb-gem?authuser=1&hs=122&ijlm=1606109463391||Fri 4/12 |10:00~15:30| Mem_Gen_Ana&Learn(10:00), IL (10:40), group meeting (12:15),   Emer_LLM (13:30), Emb_attack(14:00), LLM_Rec(14:20)|https://meet.google.com/fpu-gijb-gem?authuser=1&hs=122&ijlm=1606109463391|',
     # '3/28 Meetings ',
     # ...
+
     result = {}
     for i in range(9, 0, -2):
         title = content[i].strip()
         result[title] = []
         elements = content[i + 1].replace("||", "| |").split("|")
         # assert elements = " " | Date | Time | Detail | Link | " " | Date | Time | Detail | Link | " " | ...
-        for j in range(1, len(elements), 5):
+        for j in range(1, len(elements), 5 if elements[4].strip() != "" else 4):
             result[title].append({"date": elements[j].strip(), "time": elements[j + 1].strip(), "detail": elements[j + 2].strip(), "link": elements[j + 3].strip()})
 
     # return format:
