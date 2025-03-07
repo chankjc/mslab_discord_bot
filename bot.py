@@ -47,6 +47,9 @@ class cronjobs:
                 response = db.check_and_set_Meeting_data(
                     os.getenv("DISCORD_MEETINGTIME_NOTIFICATION_CHANNEL"), title, contents
                 )
+                logger_meeting_time.info(f"Title : {title}\n")
+                # logger_meeting_time.info(f"Contents : {contents}\n")
+                # logger_meeting_time.info(f"Response : {response}\n")
                 # If the response is not None, it means that the meeting is new or updated
                 # add color, add tag
                 # else, response is None
